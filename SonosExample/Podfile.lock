@@ -1,0 +1,13 @@
+PODS:
+  - CocoaAsyncSocket (7.3.4)
+  - XMLReader (0.0.2)
+
+DEPENDENCIES:
+  - CocoaAsyncSocket (~> 7.3.3)
+  - XMLReader (~> 0.0.2)
+
+SPEC CHECKSUMS:
+  CocoaAsyncSocket: 534d09416f992fd51efb23f534742ce70b3a7999
+  XMLReader: d8a522b0362140b328bcaec7f289ff4ffffebf29
+
+COCOAPODS: 0.29.0
