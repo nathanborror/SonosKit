@@ -43,7 +43,7 @@ static NSMutableArray *sharedConnectionList = nil;
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
   NSDictionary *response = [XMLReader dictionaryForXMLData:container options:XMLReaderOptionsProcessNamespaces error:nil];
-  NSDictionary *body = response[@"s:Envelope"][@"s:Body"];
+  NSDictionary *body = response[@"Envelope"][@"Body"];
 
   // Check for embedded XML
   if (body[@"u:GetMediaInfoResponse"][@"CurrentURIMetaData"][@"text"]) {
