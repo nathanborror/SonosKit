@@ -194,20 +194,26 @@
   [self play:[NSString stringWithFormat:@"x-rincon-stream:%@", _uuid] completion:block];
 }
 
-- (void)getVolume:(void (^)(NSDictionary *, NSError *))block
+- (void)getVolume:(void (^)(NSInteger, NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master"};
-  [self request:SonosRequestTypeRenderingControl action:@"GetVolume" params:params completion:block];
+  [self request:SonosRequestTypeRenderingControl action:@"GetVolume" params:params completion:^(NSDictionary *response, NSError *error) {
+    if (!error) {
+      NSInteger volume = [response[@"GetVolumeResponse"][@"CurrentVolume"][@"text"] integerValue];
+      block(volume, response, error);
+    }
+    block(0, response, error);
+  }];
 }
 
-- (void)setVolume:(int)level completion:(void (^)(NSDictionary *, NSError *))block
+- (void)setVolume:(NSInteger)volume completion:(void (^)(NSDictionary *, NSError *))block
 {
   // This helps throttle requests so we're not flodding the speaker.
-  if (_volumeLevel == level) return;
+  if (_volumeLevel == volume) return;
 
-  NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master", @"DesiredVolume":[NSNumber numberWithInt:level]};
+  NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master", @"DesiredVolume":[NSNumber numberWithInt:volume]};
   [self request:SonosRequestTypeRenderingControl action:@"SetVolume" params:params completion:^(id obj, NSError *error) {
-    _volumeLevel = level;
+    _volumeLevel = volume;
     if (block) block(obj, error);
   }];
 }
