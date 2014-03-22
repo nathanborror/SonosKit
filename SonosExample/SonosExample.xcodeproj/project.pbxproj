@@ -20,7 +20,6 @@
 		D8F6B6DB18D6C04E006AAA6A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F6B6C318D6C04D006AAA6A /* UIKit.framework */; };
 		D8F6B6E318D6C04E006AAA6A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8F6B6E118D6C04E006AAA6A /* InfoPlist.strings */; };
 		D8F6B6E518D6C04E006AAA6A /* SonosExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6B6E418D6C04E006AAA6A /* SonosExampleTests.m */; };
-		D8F6B6F718D6C074006AAA6A /* SonosConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6B6F018D6C074006AAA6A /* SonosConnection.m */; };
 		D8F6B6F818D6C074006AAA6A /* SonosController.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6B6F218D6C074006AAA6A /* SonosController.m */; };
 		D8F6B6F918D6C074006AAA6A /* SonosControllerStore.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6B6F418D6C074006AAA6A /* SonosControllerStore.m */; };
 		D8F6B6FA18D6C074006AAA6A /* SonosDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6B6F618D6C074006AAA6A /* SonosDiscovery.m */; };
@@ -55,8 +54,6 @@
 		D8F6B6E018D6C04E006AAA6A /* SonosExampleTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SonosExampleTests-Info.plist"; sourceTree = "<group>"; };
 		D8F6B6E218D6C04E006AAA6A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D8F6B6E418D6C04E006AAA6A /* SonosExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SonosExampleTests.m; sourceTree = "<group>"; };
-		D8F6B6EF18D6C074006AAA6A /* SonosConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SonosConnection.h; path = ../../SonosKit/SonosConnection.h; sourceTree = "<group>"; };
-		D8F6B6F018D6C074006AAA6A /* SonosConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SonosConnection.m; path = ../../SonosKit/SonosConnection.m; sourceTree = "<group>"; };
 		D8F6B6F118D6C074006AAA6A /* SonosController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SonosController.h; path = ../../SonosKit/SonosController.h; sourceTree = "<group>"; };
 		D8F6B6F218D6C074006AAA6A /* SonosController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SonosController.m; path = ../../SonosKit/SonosController.m; sourceTree = "<group>"; };
 		D8F6B6F318D6C074006AAA6A /* SonosControllerStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SonosControllerStore.h; path = ../../SonosKit/SonosControllerStore.h; sourceTree = "<group>"; };
@@ -171,8 +168,6 @@
 		D8F6B6EE18D6C068006AAA6A /* SonosKit */ = {
 			isa = PBXGroup;
 			children = (
-				D8F6B6EF18D6C074006AAA6A /* SonosConnection.h */,
-				D8F6B6F018D6C074006AAA6A /* SonosConnection.m */,
 				D8F6B6F118D6C074006AAA6A /* SonosController.h */,
 				D8F6B6F218D6C074006AAA6A /* SonosController.m */,
 				D8F6B6F318D6C074006AAA6A /* SonosControllerStore.h */,
@@ -315,7 +310,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8F6B6FD18D769DF006AAA6A /* SOViewController.m in Sources */,
-				D8F6B6F718D6C074006AAA6A /* SonosConnection.m in Sources */,
 				D8F6B6F918D6C074006AAA6A /* SonosControllerStore.m in Sources */,
 				D8F6B6D018D6C04D006AAA6A /* SOAppDelegate.m in Sources */,
 				D8F6B6FA18D6C074006AAA6A /* SonosDiscovery.m in Sources */,

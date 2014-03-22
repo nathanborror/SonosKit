@@ -7,7 +7,6 @@
 //
 
 #import "SonosController.h"
-#import "SonosConnection.h"
 #import "XMLReader.h"
 
 @implementation SonosController {
@@ -110,8 +109,18 @@
   [request addValue:[NSString stringWithFormat:@"%@#%@", ns, action] forHTTPHeaderField:@"SOAPACTION"];
   [request setHTTPBody:[requestBody dataUsingEncoding:NSUTF8StringEncoding]];
 
-  SonosConnection *connection = [[SonosConnection alloc] initWithRequest:request completion:block];
-  [connection start];
+  NSURLSession *session = [NSURLSession sharedSession];
+  NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+    if (httpResponse.statusCode != 200) return;
+
+    NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data options:XMLReaderOptionsProcessNamespaces error:&error];
+    NSDictionary *body = responseDict[@"Envelope"][@"Body"];
+
+    if (block) block(body, nil);
+  }];
+
+  [task resume];
 }
 
 - (void)play:(NSString *)uri completion:(void (^)(NSDictionary *, NSError *))block
