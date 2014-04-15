@@ -297,4 +297,28 @@
   [_slaves removeObjectIdenticalTo:slave];
 }
 
+#pragma mark - NSCoding
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+  self = [super init];
+  if (self) {
+    [self setIp:[aDecoder decodeObjectForKey:@"ip"]];
+    [self setGroup:[aDecoder decodeObjectForKey:@"group"]];
+    [self setName:[aDecoder decodeObjectForKey:@"name"]];
+    [self setUuid:[aDecoder decodeObjectForKey:@"uuid"]];
+    [self setCoordinator:[aDecoder decodeBoolForKey:@"coordinator"]];
+  }
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+  [aCoder encodeObject:_ip forKey:@"ip"];
+  [aCoder encodeObject:_group forKey:@"group"];
+  [aCoder encodeObject:_name forKey:@"name"];
+  [aCoder encodeObject:_uuid forKey:@"uuid"];
+  [aCoder encodeBool:_coordinator forKey:@"coordinator"];
+}
+
 @end

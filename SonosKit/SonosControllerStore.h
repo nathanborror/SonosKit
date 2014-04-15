@@ -12,12 +12,11 @@
 
 @interface SonosControllerStore : NSObject
 
+@property (nonatomic, readonly) NSArray *allControllers;
 @property (nonatomic, readonly) NSArray *coordinators;
 @property (nonatomic, readonly) NSArray *slaves;
-@property (nonatomic, strong) SonosController *currentController;
 
 + (SonosControllerStore *)sharedStore;
-
-- (NSArray *)allControllers;
+- (BOOL)saveChanges;
 
 @end

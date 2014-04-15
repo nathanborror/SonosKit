@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
   SonosRequestTypeGroupManagement,
 };
 
-@interface SonosController : NSObject
+@interface SonosController : NSObject <NSCoding>
 
 @property (nonatomic, strong) NSString *ip;
 @property (nonatomic, strong) NSString *group;
