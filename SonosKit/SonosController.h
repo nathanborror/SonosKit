@@ -44,7 +44,7 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 - (void)getVolume:(void(^)(NSInteger volume, NSDictionary *response, NSError *error))block;
 - (void)setVolume:(NSInteger)volume completion:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)lineIn:(void(^)(NSDictionary *response, NSError *error))block;
-- (void)trackInfo:(void(^)(NSDictionary *response, NSError *error))block;
+- (void)trackInfo:(void(^)(NSDictionary *track, NSDictionary *response, NSError *error))block;
 - (void)mediaInfo:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)status:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)browse:(void(^)(NSDictionary *response, NSError *error))block;

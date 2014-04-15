@@ -144,10 +144,12 @@
   [self request:SonosRequestTypeAVTransport action:@"GetTransportInfo" params:params completion:^(NSDictionary *response, NSError *error) {
     if (error) {
       block(NO, nil, error);
+      return;
     }
 
     if ([response[@"CurrentTransportState"] isEqualToString:@"PLAYING"]) {
       block(YES, response, nil);
+      return;
     }
 
     block(NO, response, nil);
@@ -210,6 +212,7 @@
     if (!error) {
       NSInteger volume = [response[@"GetVolumeResponse"][@"CurrentVolume"][@"text"] integerValue];
       block(volume, response, error);
+      return;
     }
     block(0, response, error);
   }];
@@ -227,10 +230,19 @@
   }];
 }
 
-- (void)trackInfo:(void (^)(NSDictionary *, NSError *))block
+- (void)trackInfo:(void (^)(NSDictionary *, NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"InstanceID": @0};
-  [self request:SonosRequestTypeAVTransport action:@"GetPositionInfo" params:params completion:block];
+  [self request:SonosRequestTypeAVTransport action:@"GetPositionInfo" params:params completion:^(NSDictionary *response, NSError *error) {
+    if (!error) {
+      NSString *trackData = response[@"GetPositionInfoResponse"][@"TrackMetaData"][@"text"];
+      NSDictionary *track = [XMLReader dictionaryForXMLString:trackData options:XMLReaderOptionsProcessNamespaces error:&error];
+      block(track[@"DIDL-Lite"][@"item"], response, error);
+      return;
+    }
+
+    block(nil, response, error);
+  }];
 }
 
 - (void)mediaInfo:(void (^)(NSDictionary *, NSError *))block
