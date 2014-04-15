@@ -50,5 +50,6 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 - (void)browse:(void(^)(NSDictionary *response, NSError *error))block;
 
 - (void)addSlave:(SonosController *)slave;
+- (void)removeSlave:(SonosController *)slave;
 
 @end

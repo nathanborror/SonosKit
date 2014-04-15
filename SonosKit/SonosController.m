@@ -278,4 +278,9 @@
   [_slaves addObject:slave];
 }
 
+- (void)removeSlave:(SonosController *)slave
+{
+  [_slaves removeObjectIdenticalTo:slave];
+}
+
 @end
