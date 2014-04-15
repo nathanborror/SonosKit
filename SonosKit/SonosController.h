@@ -48,6 +48,8 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 - (void)mediaInfo:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)status:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)browse:(void(^)(NSDictionary *response, NSError *error))block;
+- (void)changeCoordinatorTo:(SonosController *)coordinator completion:(void(^)(NSDictionary *response, NSError *error))block;
+- (void)transportSettings:(void(^)(NSDictionary *response, NSError *error))block;
 
 - (void)addSlave:(SonosController *)slave;
 - (void)removeSlave:(SonosController *)slave;

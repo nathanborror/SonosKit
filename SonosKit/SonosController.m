@@ -268,6 +268,20 @@
   [self request:SonosRequestTypeContentDirectory action:@"Browse" params:params completion:block];
 }
 
+- (void)changeCoordinatorTo:(SonosController *)coordinator completion:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0,
+                           @"CurrentURI": [NSString stringWithFormat:@"x-rincon:%@", coordinator.uuid],
+                           @"CurrentURIMetaData": @""};
+  [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:block];
+}
+
+- (void)transportSettings:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeAVTransport action:@"GetTransportSettings" params:params completion:block];
+}
+
 - (NSArray *)slaves
 {
   return (NSArray *)[_slaves copy];
