@@ -55,16 +55,13 @@ typedef void (^kFindControllersBlock)(NSArray *ipAddresses);
           NSString *ip = [ipLocation substringWithRange:ipRegexMatch.range];
           BOOL coordinator = [input[@"coordinator"] isEqualToString:@"true"] ? YES : NO;
 
-          SonosController *controller = [[SonosController alloc] initWithIP:ip];
-
           if (![input[@"text"] isEqualToString:@"Sonos Bridge"]) {
             [controllers addObject:@{
-                                     @"ip": controller.ip,
+                                     @"ip": ip,
                                      @"name": input[@"text"],
                                      @"coordinator": [NSNumber numberWithBool:coordinator],
                                      @"uuid": input[@"uuid"],
-                                     @"group": input[@"group"],
-                                     @"controller": controller
+                                     @"group": input[@"group"]
                                      }];
           }
         }
