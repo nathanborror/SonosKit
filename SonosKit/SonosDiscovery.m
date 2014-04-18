@@ -56,12 +56,16 @@ typedef void (^kFindControllersBlock)(NSArray *ipAddresses);
           BOOL coordinator = [input[@"coordinator"] isEqualToString:@"true"] ? YES : NO;
 
           if (![input[@"text"] isEqualToString:@"Sonos Bridge"]) {
+            NSString *group = input[@"group"];
+            NSRegularExpression *groupRegex = [NSRegularExpression regularExpressionWithPattern:@"RINCON_\\w{17}" options:0 error:nil];
+            NSTextCheckingResult *groupMatch = [groupRegex firstMatchInString:group options:0 range:NSMakeRange(0, group.length)];
+
             [controllers addObject:@{
                                      @"ip": ip,
                                      @"name": input[@"text"],
                                      @"coordinator": [NSNumber numberWithBool:coordinator],
                                      @"uuid": input[@"uuid"],
-                                     @"group": input[@"group"]
+                                     @"group": [group substringWithRange:groupMatch.range]
                                      }];
           }
         }
