@@ -297,6 +297,11 @@
   [_slaves removeObjectIdenticalTo:slave];
 }
 
+- (void)removeAllSlaves
+{
+  [_slaves removeAllObjects];
+}
+
 #pragma mark - NSCoding
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder

@@ -15,10 +15,11 @@
 @property (nonatomic, readonly) NSArray *allControllers;
 @property (nonatomic, readonly) NSArray *coordinators;
 @property (nonatomic, readonly) NSArray *slaves;
+@property (nonatomic, readonly) NSArray *data;
 
 + (SonosControllerStore *)sharedStore;
 - (SonosController *)getControllerByUUID:(NSString *)uuid;
-- (NSArray *)data;
 - (BOOL)saveChanges;
+- (void)pairController:(SonosController *)controller1 with:(SonosController *)controller2;
 
 @end

@@ -53,5 +53,6 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 
 - (void)addSlave:(SonosController *)slave;
 - (void)removeSlave:(SonosController *)slave;
+- (void)removeAllSlaves;
 
 @end

@@ -91,11 +91,15 @@
 
 - (void)organizeControllers
 {
+  [self willChangeValueForKey:@"data"];
   NSMutableArray *coordinators = [[NSMutableArray alloc] init];
   NSMutableArray *slaves = [[NSMutableArray alloc] init];
 
   // Break out coordinators and slaves into arrays
   for (SonosController *controller in _allControllers) {
+    // Set slaves to nil since we're about to reassign all of them
+    [controller removeAllSlaves];
+
     if (controller.isCoordinator) {
       [coordinators addObject:controller];
     } else {
@@ -115,6 +119,18 @@
 
   _slaves = [NSArray arrayWithArray:slaves];
   _coordinators = [NSArray arrayWithArray:coordinators];
+  [self didChangeValueForKey:@"data"];
+}
+
+- (void)pairController:(SonosController *)controller1 with:(SonosController *)controller2
+{
+  [controller1 changeCoordinatorTo:controller2 completion:nil];
+  [controller1 setGroup:controller2.uuid];
+  [controller1 setCoordinator:NO];
+
+  [controller2 setCoordinator:YES];
+
+  [self organizeControllers];
 }
 
 #pragma mark - NSCoding
