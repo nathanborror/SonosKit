@@ -49,6 +49,17 @@
   return nil;
 }
 
+- (NSArray *)data
+{
+  NSMutableArray *data = [NSMutableArray array];
+  for (SonosController *coordinator in _coordinators) {
+    NSMutableArray *controllers = [NSMutableArray arrayWithArray:coordinator.slaves];
+    [controllers addObject:coordinator];
+    [data addObject:controllers];
+  }
+  return [NSArray arrayWithArray:data];
+}
+
 - (void)discoverControllers
 {
   [SonosDiscovery discoverControllers:^(NSArray *objects, NSError *error) {

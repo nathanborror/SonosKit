@@ -18,6 +18,7 @@
 
 + (SonosControllerStore *)sharedStore;
 - (SonosController *)getControllerByUUID:(NSString *)uuid;
+- (NSArray *)data;
 - (BOOL)saveChanges;
 
 @end
