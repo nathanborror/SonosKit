@@ -39,6 +39,16 @@
   return self;
 }
 
+- (SonosController *)getControllerByUUID:(NSString *)uuid
+{
+  for (SonosController *controller in _allControllers) {
+    if ([controller.uuid isEqualToString:uuid]) {
+      return controller;
+    }
+  }
+  return nil;
+}
+
 - (void)discoverControllers
 {
   [SonosDiscovery discoverControllers:^(NSArray *objects, NSError *error) {

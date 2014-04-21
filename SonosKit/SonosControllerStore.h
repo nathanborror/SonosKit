@@ -17,6 +17,7 @@
 @property (nonatomic, readonly) NSArray *slaves;
 
 + (SonosControllerStore *)sharedStore;
+- (SonosController *)getControllerByUUID:(NSString *)uuid;
 - (BOOL)saveChanges;
 
 @end
