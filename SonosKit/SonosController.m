@@ -123,22 +123,44 @@
   [task resume];
 }
 
-- (void)play:(NSString *)uri completion:(void (^)(NSDictionary *, NSError *))block
+- (void)getDescription:(void (^)(NSDictionary *, NSError *))block
 {
-  if (uri) {
-    NSDictionary *params = @{@"InstanceID": @0, @"CurrentURI":uri, @"CurrentURIMetaData": @""};
-    [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:^(id obj, NSError *error) {
-      [self play:nil completion:block];
-    }];
-  } else {
-    NSDictionary *params = @{@"InstanceID": @0, @"Speed":@1};
-    [self request:SonosRequestTypeAVTransport action:@"Play" params:params completion:^(id obj, NSError *error) {
-      if (block) block(obj, error);
-    }];
-  }
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:1400/xml/device_description.xml", _ip]];
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+
+  NSURLSession *session = [NSURLSession sharedSession];
+  NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+    if (httpResponse.statusCode != 200) return;
+
+    NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data options:XMLReaderOptionsProcessNamespaces error:&error];
+    if (block) block(responseDict, nil);
+  }];
+
+  [task resume];
 }
 
-- (void)playbackStatus:(void (^)(BOOL, NSDictionary *, NSError *))block
+#pragma mark - AVTransport
+
+- (void)queue:(NSString *)track completion:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0,
+                           @"EnqueuedURI": track,
+                           @"EnqueuedURIMetaData": @"",
+                           @"DesiredFirstTrackNumberEnqueued": @0,
+                           @"EnqueueAsNext": @1};
+  [self request:SonosRequestTypeAVTransport action:@"AddURIToQueue" params:params completion:^(id obj, NSError *error) {
+    [self play:nil completion:block];
+  }];
+}
+
+- (void)getMediaInfo:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeAVTransport action:@"GetMediaInfo" params:params completion:block];
+}
+
+- (void)getTransportInfo:(void (^)(BOOL, NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"InstanceID": @0};
   [self request:SonosRequestTypeAVTransport action:@"GetTransportInfo" params:params completion:^(NSDictionary *response, NSError *error) {
@@ -156,18 +178,60 @@
   }];
 }
 
-- (void)pause:(void (^)(NSDictionary *, NSError *))block
+- (void)getPositionInfo:(void (^)(NSDictionary *, NSDictionary *, NSError *))block
 {
-  NSDictionary *params = @{@"InstanceID": @0, @"Speed": @1};
-  [self request:SonosRequestTypeAVTransport action:@"Pause" params:params completion:^(id obj, NSError *error) {
-    if (block) block(obj, error);
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeAVTransport action:@"GetPositionInfo" params:params completion:^(NSDictionary *response, NSError *error) {
+    if (!error) {
+      NSString *trackData = response[@"GetPositionInfoResponse"][@"TrackMetaData"][@"text"];
+      NSDictionary *track = [XMLReader dictionaryForXMLString:trackData options:XMLReaderOptionsProcessNamespaces error:&error];
+      block(track[@"DIDL-Lite"][@"item"], response, error);
+      return;
+    }
+
+    block(nil, response, error);
   }];
+}
+
+- (void)getDeviceCapabilities:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeAVTransport action:@"GetDeviceCapabilities" params:params completion:block];
+}
+
+- (void)getTransportSettings:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeAVTransport action:@"GetTransportSettings" params:params completion:block];
 }
 
 - (void)stop:(void (^)(NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"InstanceID": @0, @"Speed": @1};
   [self request:SonosRequestTypeAVTransport action:@"Stop" params:params completion:^(id obj, NSError *error) {
+    if (block) block(obj, error);
+  }];
+}
+
+- (void)play:(NSString *)uri completion:(void (^)(NSDictionary *, NSError *))block
+{
+  if (uri) {
+    NSDictionary *params = @{@"InstanceID": @0, @"CurrentURI":uri, @"CurrentURIMetaData": @""};
+    [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:^(id obj, NSError *error) {
+      [self play:nil completion:block];
+    }];
+  } else {
+    NSDictionary *params = @{@"InstanceID": @0, @"Speed":@1};
+    [self request:SonosRequestTypeAVTransport action:@"Play" params:params completion:^(id obj, NSError *error) {
+      if (block) block(obj, error);
+    }];
+  }
+}
+
+- (void)pause:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0, @"Speed": @1};
+  [self request:SonosRequestTypeAVTransport action:@"Pause" params:params completion:^(id obj, NSError *error) {
     if (block) block(obj, error);
   }];
 }
@@ -188,21 +252,44 @@
   }];
 }
 
-- (void)queue:(NSString *)track completion:(void (^)(NSDictionary *, NSError *))block
+- (void)changeCoordinatorTo:(SonosController *)coordinator completion:(void (^)(NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"InstanceID": @0,
-                           @"EnqueuedURI": track,
-                           @"EnqueuedURIMetaData": @"",
-                           @"DesiredFirstTrackNumberEnqueued": @0,
-                           @"EnqueueAsNext": @1};
-  [self request:SonosRequestTypeAVTransport action:@"AddURIToQueue" params:params completion:^(id obj, NSError *error) {
-    [self play:nil completion:block];
-  }];
+                           @"CurrentURI": [NSString stringWithFormat:@"x-rincon:%@", coordinator.uuid],
+                           @"CurrentURIMetaData": @""};
+  [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:block];
 }
 
-- (void)lineIn:(void (^)(NSDictionary *, NSError *))block
+#pragma mark - ConnectionManager
+
+- (void)getProtocolInfo:(void(^)(NSDictionary *, NSError *))block
 {
-  [self play:[NSString stringWithFormat:@"x-rincon-stream:%@", _uuid] completion:block];
+  [self request:SonosRequestTypeConnectionManager action:@"GetProtocolInfo" params:nil completion:block];
+}
+
+- (void)getCurrentConnectionIDs:(void(^)(NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeConnectionManager action:@"GetCurrentConnectionIDs" params:nil completion:block];
+}
+
+- (void)getCurrentConnectionInfo:(void(^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"CurrentConnectionIDs": @0};
+  [self request:SonosRequestTypeConnectionManager action:@"GetCurrentConnectionInfo" params:params completion:block];
+}
+
+#pragma mark - RenderingControl
+
+- (void)getMute:(void(^)(NSDictionary *response, NSError *error))block
+{
+  NSDictionary *params = @{@"InstanceID": @0};
+  [self request:SonosRequestTypeRenderingControl action:@"GetMute" params:params completion:block];
+}
+
+- (void)setMute:(void (^)(NSDictionary *, NSError *))block
+{
+  NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master", @"DesiredMute": @1};
+  [self request:SonosRequestTypeRenderingControl action:@"SetMute" params:params completion:block];
 }
 
 - (void)getVolume:(void (^)(NSInteger, NSDictionary *, NSError *))block
@@ -224,40 +311,20 @@
   if (_volumeLevel == volume) return;
 
   NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master", @"DesiredVolume":[NSNumber numberWithInt:volume]};
-  [self request:SonosRequestTypeRenderingControl action:@"SetVolume" params:params completion:^(id obj, NSError *error) {
+  [self request:SonosRequestTypeRenderingControl action:@"SetVolume" params:params completion:^(NSDictionary *response, NSError *error) {
     _volumeLevel = volume;
-    if (block) block(obj, error);
+    if (block) block(response, error);
   }];
 }
 
-- (void)trackInfo:(void (^)(NSDictionary *, NSDictionary *, NSError *))block
+- (void)lineIn:(void (^)(NSDictionary *, NSError *))block
 {
-  NSDictionary *params = @{@"InstanceID": @0};
-  [self request:SonosRequestTypeAVTransport action:@"GetPositionInfo" params:params completion:^(NSDictionary *response, NSError *error) {
-    if (!error) {
-      NSString *trackData = response[@"GetPositionInfoResponse"][@"TrackMetaData"][@"text"];
-      NSDictionary *track = [XMLReader dictionaryForXMLString:trackData options:XMLReaderOptionsProcessNamespaces error:&error];
-      block(track[@"DIDL-Lite"][@"item"], response, error);
-      return;
-    }
-
-    block(nil, response, error);
-  }];
+  [self play:[NSString stringWithFormat:@"x-rincon-stream:%@", _uuid] completion:block];
 }
 
-- (void)mediaInfo:(void (^)(NSDictionary *, NSError *))block
-{
-  NSDictionary *params = @{@"InstanceID": @0};
-  [self request:SonosRequestTypeAVTransport action:@"GetMediaInfo" params:params completion:block];
-}
+#pragma mark - ContentDirectory
 
-- (void)status:(void (^)(NSDictionary *, NSError *))block
-{
-  NSDictionary *params = @{@"InstanceID": @0};
-  [self request:SonosRequestTypeAVTransport action:@"GetTransportInfo" params:params completion:block];
-}
-
-- (void)browse:(void (^)(NSDictionary *, NSError *))block
+- (void)browseContent:(void (^)(NSDictionary *, NSError *))block
 {
   NSDictionary *params = @{@"ObjectID": @"A:ARTIST",
                            @"BrowseFlag": @"BrowseDirectChildren",
@@ -268,19 +335,62 @@
   [self request:SonosRequestTypeContentDirectory action:@"Browse" params:params completion:block];
 }
 
-- (void)changeCoordinatorTo:(SonosController *)coordinator completion:(void (^)(NSDictionary *, NSError *))block
+#pragma mark - Queue
+
+- (void)browseQueue:(void (^)(NSDictionary *, NSError *))block
 {
-  NSDictionary *params = @{@"InstanceID": @0,
-                           @"CurrentURI": [NSString stringWithFormat:@"x-rincon:%@", coordinator.uuid],
-                           @"CurrentURIMetaData": @""};
-  [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:block];
+  NSDictionary *params = @{@"QueueID": @0, @"StartingIndex": @0, @"RequestedCount": @0};
+  [self request:SonosRequestTypeQueue action:@"Browse" params:params completion:block];
 }
 
-- (void)transportSettings:(void (^)(NSDictionary *, NSError *))block
+#pragma mark - AlarmClock
+
+- (void)listAlarms:(void (^)(NSDictionary *, NSDictionary *, NSError *))block
 {
-  NSDictionary *params = @{@"InstanceID": @0};
-  [self request:SonosRequestTypeAVTransport action:@"GetTransportSettings" params:params completion:block];
+  [self request:SonosRequestTypeAlarmClock action:@"ListAlarms" params:nil completion:^(NSDictionary *response, NSError *error) {
+    NSDictionary *alarms = [XMLReader dictionaryForXMLString:response[@"ListAlarmsResponse"][@"CurrentAlarmList"][@"text"] options:XMLReaderOptionsProcessNamespaces error:&error];
+    if (block) block(alarms, response, error);
+  }];
 }
+
+#pragma mark - MusicServices
+
+- (void)listAvailableServices:(void (^)(NSDictionary *, NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeMusicServices action:@"ListAvailableServices" params:nil completion:^(NSDictionary *response, NSError *error) {
+    NSDictionary *services = [XMLReader dictionaryForXMLString:response[@"ListAvailableServicesResponse"][@"AvailableServiceDescriptorList"][@"text"] options:XMLReaderOptionsProcessNamespaces error:&error];
+    if (block) block(services, response, error);
+  }];
+}
+
+#pragma mark - DeviceProperties
+
+- (void)getZoneAttributes:(void(^)(NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeDeviceProperties action:@"GetZoneAttributes" params:nil completion:block];
+}
+
+- (void)getZoneInfo:(void(^)(NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeDeviceProperties action:@"GetZoneInfo" params:nil completion:block];
+}
+
+#pragma mark - ZoneGroupTopology
+
+- (void)getZoneGroupAttributes:(void(^)(NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeZoneGroupTopology action:@"GetZoneGroupAttributes" params:nil completion:block];
+}
+
+- (void)getZoneGroupState:(void(^)(NSDictionary *, NSError *))block
+{
+  [self request:SonosRequestTypeZoneGroupTopology action:@"GetZoneGroupState" params:nil completion:^(NSDictionary *response, NSError *error) {
+    NSDictionary *responseDict = [XMLReader dictionaryForXMLString:response[@"GetZoneGroupStateResponse"][@"ZoneGroupState"][@"text"] options:XMLReaderOptionsProcessNamespaces error:&error];
+    if (block) block(responseDict, error);
+  }];
+}
+
+# pragma mark - Helpers
 
 - (NSArray *)slaves
 {
