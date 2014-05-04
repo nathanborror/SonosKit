@@ -70,7 +70,9 @@ typedef void (^kFindControllersBlock)(NSArray *ipAddresses);
           }
         }
 
-        completion(controllers, error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(controllers, error);
+        });
       }];
 
       [task resume];

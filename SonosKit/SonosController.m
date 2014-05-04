@@ -117,10 +117,14 @@
     NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data options:XMLReaderOptionsProcessNamespaces error:&error];
     NSDictionary *body = responseDict[@"Envelope"][@"Body"];
 
-    if (block) block(body, nil);
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (block) block(body, nil);
+    });
   }];
 
-  [task resume];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [task resume];
+  });
 }
 
 - (void)getDescription:(void (^)(NSDictionary *, NSError *))block
@@ -134,10 +138,15 @@
     if (httpResponse.statusCode != 200) return;
 
     NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data options:XMLReaderOptionsProcessNamespaces error:&error];
-    if (block) block(responseDict, nil);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (block) block(responseDict, nil);
+    });
   }];
 
-  [task resume];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [task resume];
+  });
 }
 
 #pragma mark - AVTransport
