@@ -125,7 +125,7 @@
 - (void)pairController:(SonosController *)controller1 with:(SonosController *)controller2
 {
   [controller1 changeCoordinatorTo:controller2 completion:nil];
-  [controller1 setGroup:controller2.uuid];
+  [controller1 setGroup:controller2.group];
   [controller1 setCoordinator:NO];
 
   [controller2 setCoordinator:YES];
