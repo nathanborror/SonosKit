@@ -39,6 +39,7 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 // AVTransport
 
 - (void)queue:(NSString *)track completion:(void(^)(NSDictionary *response, NSError *error))block;
+- (void)queueSpotify:(NSString *)track parent:(NSString *)parent completion:(void (^)(NSDictionary *, NSError *))block;
 - (void)getMediaInfo:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)getTransportInfo:(void(^)(BOOL playing, NSDictionary *response, NSError *error))block;
 - (void)getPositionInfo:(void(^)(NSDictionary *track, NSDictionary *response, NSError *error))block;
@@ -46,6 +47,7 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 - (void)getTransportSettings:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)stop:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)play:(NSString *)uri completion:(void(^)(NSDictionary *response, NSError *error))block;
+- (void)playSpotify:(NSString *)uri parent:(NSString *)parent completion:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)pause:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)next:(void(^)(NSDictionary *response, NSError *error))block;
 - (void)previous:(void(^)(NSDictionary *response, NSError *error))block;

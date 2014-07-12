@@ -151,16 +151,31 @@
 
 #pragma mark - AVTransport
 
+- (void)queue:(NSString *)track metaData:(NSString *)metaData completion:(void (^)(NSDictionary *, NSError *))block
+{
+    NSDictionary *params = @{@"InstanceID": @0,
+                             @"EnqueuedURI": track,
+                             @"EnqueuedURIMetaData": metaData ? metaData : @"",
+                             @"DesiredFirstTrackNumberEnqueued": @0,
+                             @"EnqueueAsNext": @1};
+    [self request:SonosRequestTypeAVTransport action:@"AddURIToQueue" params:params completion:^(id obj, NSError *error) {
+        [self play:nil completion:block];
+    }];
+}
+
 - (void)queue:(NSString *)track completion:(void (^)(NSDictionary *, NSError *))block
 {
-  NSDictionary *params = @{@"InstanceID": @0,
-                           @"EnqueuedURI": track,
-                           @"EnqueuedURIMetaData": @"",
-                           @"DesiredFirstTrackNumberEnqueued": @0,
-                           @"EnqueueAsNext": @1};
-  [self request:SonosRequestTypeAVTransport action:@"AddURIToQueue" params:params completion:^(id obj, NSError *error) {
-    [self play:nil completion:block];
-  }];
+    [self queue:track metaData:nil completion:block];
+}
+
+- (void)queueSpotify:(NSString *)track parent:(NSString *)parent completion:(void (^)(NSDictionary *, NSError *))block
+{
+    NSString *trackEncoded = [track stringByReplacingOccurrencesOfString:@":" withString:@"%3a"];
+    NSString *trackURI = [NSString stringWithFormat:@"x-sonos-spotify:%@?sid=9", trackEncoded];
+    
+    NSString *metaData = [self spotifyMetaData:track parent:parent];
+    
+    [self queue:trackURI metaData:metaData completion:block];
 }
 
 - (void)getMediaInfo:(void (^)(NSDictionary *, NSError *))block
@@ -222,19 +237,34 @@
   }];
 }
 
+- (void)play:(NSString *)uri metaData:(NSString *)metaData completion:(void (^)(NSDictionary *, NSError *))block
+{
+    if (uri) {
+        NSDictionary *params = @{@"InstanceID": @0, @"CurrentURI":uri, @"CurrentURIMetaData": metaData ? metaData : @""};
+        [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:^(id obj, NSError *error) {
+            [self play:nil completion:block];
+        }];
+    } else {
+        NSDictionary *params = @{@"InstanceID": @0, @"Speed":@1};
+        [self request:SonosRequestTypeAVTransport action:@"Play" params:params completion:^(id obj, NSError *error) {
+            if (block) block(obj, error);
+        }];
+    }
+}
+
 - (void)play:(NSString *)uri completion:(void (^)(NSDictionary *, NSError *))block
 {
-  if (uri) {
-    NSDictionary *params = @{@"InstanceID": @0, @"CurrentURI":uri, @"CurrentURIMetaData": @""};
-    [self request:SonosRequestTypeAVTransport action:@"SetAVTransportURI" params:params completion:^(id obj, NSError *error) {
-      [self play:nil completion:block];
-    }];
-  } else {
-    NSDictionary *params = @{@"InstanceID": @0, @"Speed":@1};
-    [self request:SonosRequestTypeAVTransport action:@"Play" params:params completion:^(id obj, NSError *error) {
-      if (block) block(obj, error);
-    }];
-  }
+    [self play:uri metaData:nil completion:block];
+}
+
+- (void)playSpotify:(NSString *)uri parent:(NSString *)parent completion:(void (^)(NSDictionary *, NSError *))block
+{
+    NSString *trackEncoded = [uri stringByReplacingOccurrencesOfString:@":" withString:@"%3a"];
+    NSString *trackURI = [NSString stringWithFormat:@"x-sonos-spotify:%@?sid=9", trackEncoded];
+    
+    NSString *metaData = [self spotifyMetaData:uri parent:parent];
+    
+    [self play:trackURI metaData:metaData completion:block];
 }
 
 - (void)pause:(void (^)(NSDictionary *, NSError *))block
@@ -443,6 +473,31 @@
   [aCoder encodeObject:_name forKey:@"name"];
   [aCoder encodeObject:_uuid forKey:@"uuid"];
   [aCoder encodeBool:_coordinator forKey:@"coordinator"];
+}
+
+#pragma mark - Spotify
+
+- (NSString *)spotifyMetaData:(NSString *)uri parent:(NSString *)parent
+{
+    NSString *uriEncoded = [uri stringByReplacingOccurrencesOfString:@":" withString:@"%3a"];
+    NSString *parentEncoded = [parent stringByReplacingOccurrencesOfString:@":" withString:@"%3a"];
+    
+    int randomNumber = 10000000 + arc4random() % (99999999 - 10000000);
+    
+    NSString *metaData = [NSString stringWithFormat:
+                          @"<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/\" xmlns:r=\"urn:schemas-rinconnetworks-com:metadata-1-0/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">\
+                          <item id=\"%d%@\" parentID=\"%@\" restricted=\"true\">\
+                          <dc:title></dc:title>\
+                          <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
+                          <desc id=\"cdudn\" nameSpace=\"urn:schemas-rinconnetworks-com:metadata-1-0/\">SA_RINCON2311_X_#Svc2311-0-Token</desc>\
+                          </item>\
+                          </DIDL-Lite>", randomNumber, uriEncoded, parentEncoded];
+    
+    metaData = [metaData stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
+    metaData = [metaData stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
+    metaData = [metaData stringByReplacingOccurrencesOfString:@"\"" withString:@"&quot;"];
+        
+    return metaData;
 }
 
 @end
