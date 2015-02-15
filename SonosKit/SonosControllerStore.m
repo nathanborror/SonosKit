@@ -12,6 +12,8 @@
 
 @implementation SonosControllerStore
 
+@synthesize delegate;
+
 + (SonosControllerStore *)sharedStore
 {
   static SonosControllerStore *sharedStore = nil;
@@ -63,7 +65,7 @@
 - (void)discoverControllers
 {
   [SonosDiscovery discoverControllers:^(NSArray *objects, NSError *error) {
-    [self willChangeValueForKey:@"allControllers"];
+    //[self willChangeValueForKey:@"allControllers"];
 
     NSMutableArray *controllers = [[NSMutableArray alloc] init];
 
@@ -79,7 +81,8 @@
     _allControllers = [NSArray arrayWithArray:controllers];
     [self organizeControllers];
 
-    [self didChangeValueForKey:@"allControllers"];
+    //[self didChangeValueForKey:@"allControllers"];
+    [delegate didFinishDiscoveringControllers:[NSArray arrayWithArray:controllers]];
   }];
 }
 

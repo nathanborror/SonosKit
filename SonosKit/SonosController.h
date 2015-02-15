@@ -29,6 +29,10 @@ typedef NS_ENUM(NSInteger, SonosRequestType) {
 @property (nonatomic, strong) NSString *group;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *uuid;
+@property (nonatomic, strong) NSString *status;
+@property (nonatomic, strong) NSString *info;
+@property (nonatomic, strong) NSString *currentvolume;
+
 @property (nonatomic, readonly) NSArray *slaves;
 @property (nonatomic, assign, getter = isCoordinator) BOOL coordinator;
 

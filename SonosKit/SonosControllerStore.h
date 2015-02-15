@@ -10,8 +10,18 @@
 
 @class SonosController;
 
-@interface SonosControllerStore : NSObject
+// Protocol definition starts here
+@protocol SonosControllerStoreDelegate <NSObject>
 
+@required
+- (void) didFinishDiscoveringControllers: (NSArray *)controllers;
+@end
+
+@interface SonosControllerStore : NSObject {
+    id <SonosControllerStoreDelegate> _delegate;
+}
+
+@property (nonatomic, strong) id delegate;
 @property (nonatomic, readonly) NSArray *allControllers;
 @property (nonatomic, readonly) NSArray *coordinators;
 @property (nonatomic, readonly) NSArray *slaves;
