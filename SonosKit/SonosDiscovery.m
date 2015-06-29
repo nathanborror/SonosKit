@@ -47,6 +47,10 @@ typedef void (^kFindControllersBlock)(NSArray *ipAddresses);
 
         NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data error:&error];
         NSArray *inputs = responseDict[@"ZPSupportInfo"][@"ZonePlayers"][@"ZonePlayer"];
+		  
+        if(![inputs isKindOfClass:[NSArray class]]) {
+            inputs = @[inputs];
+        }
 
         for (NSDictionary *input in inputs) {
           NSString *ipLocation = input[@"location"];
