@@ -55,7 +55,7 @@ typedef void (^kFindControllersBlock)(NSArray *ipAddresses);
           NSString *ip = [ipLocation substringWithRange:ipRegexMatch.range];
           BOOL coordinator = [input[@"coordinator"] isEqualToString:@"true"] ? YES : NO;
 
-          if (![input[@"text"] isEqualToString:@"Sonos Bridge"]) {
+          if (![input[@"text"] isEqualToString:@"Sonos Bridge"] && ![input[@"text"] isEqualToString:@"BRIDGE"]) {
             [controllers addObject:@{
                                      @"ip": ip,
                                      @"name": input[@"text"],

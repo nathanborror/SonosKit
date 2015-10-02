@@ -115,7 +115,7 @@
     if (httpResponse.statusCode != 200) return;
 
     NSDictionary *responseDict = [XMLReader dictionaryForXMLData:data options:XMLReaderOptionsProcessNamespaces error:&error];
-    NSDictionary *body = responseDict[@"Envelope"][@"Body"];
+    NSDictionary *body = responseDict[@"s:Envelope"][@"s:Body"];
 
     dispatch_async(dispatch_get_main_queue(), ^{
       if (block) block(body, nil);
@@ -173,12 +173,13 @@
 {
   NSDictionary *params = @{@"InstanceID": @0};
   [self request:SonosRequestTypeAVTransport action:@"GetTransportInfo" params:params completion:^(NSDictionary *response, NSError *error) {
+
     if (error) {
       block(NO, nil, error);
       return;
     }
 
-    if ([response[@"CurrentTransportState"] isEqualToString:@"PLAYING"]) {
+    if ([response[@"u:GetTransportInfoResponse"][@"CurrentTransportState"][@"text"] isEqualToString:@"PLAYING"]) {
       block(YES, response, nil);
       return;
     }
@@ -306,7 +307,7 @@
   NSDictionary *params = @{@"InstanceID": @0, @"Channel":@"Master"};
   [self request:SonosRequestTypeRenderingControl action:@"GetVolume" params:params completion:^(NSDictionary *response, NSError *error) {
     if (!error) {
-      NSInteger volume = [response[@"GetVolumeResponse"][@"CurrentVolume"][@"text"] integerValue];
+      NSInteger volume = [response[@"u:GetVolumeResponse"][@"CurrentVolume"][@"text"] integerValue];
       block(volume, response, error);
       return;
     }
@@ -431,7 +432,10 @@
     [self setGroup:[aDecoder decodeObjectForKey:@"group"]];
     [self setName:[aDecoder decodeObjectForKey:@"name"]];
     [self setUuid:[aDecoder decodeObjectForKey:@"uuid"]];
+    [self setStatus:[aDecoder decodeObjectForKey:@"status"]];
+    [self setInfo:[aDecoder decodeObjectForKey:@"info"]];
     [self setCoordinator:[aDecoder decodeBoolForKey:@"coordinator"]];
+    [self setCurrentvolume:[aDecoder decodeObjectForKey:@"currentvolume"]];
   }
   return self;
 }
@@ -442,7 +446,10 @@
   [aCoder encodeObject:_group forKey:@"group"];
   [aCoder encodeObject:_name forKey:@"name"];
   [aCoder encodeObject:_uuid forKey:@"uuid"];
+  [aCoder encodeObject:_status forKey:@"status"];
+  [aCoder encodeObject:_info forKey:@"info"];
   [aCoder encodeBool:_coordinator forKey:@"coordinator"];
+  [aCoder encodeObject:_currentvolume forKey:@"currentvolume"];
 }
 
 @end
