@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.license = "GPL v3"
   s.author = {"Nathan Borror" => "nathan@nathanborror.com"}
   s.source = {:git => "https://github.com/nathanborror/SonosKit.git", :tag => s.version.to_s}
-  s.osx.platform = "10.9"
-  s.ios.platform = "7.0"
+  s.osx.deployment_target = '10.9'
+  s.ios.deployment_target = '7.0'
   s.requires_arc = true
   s.source_files = "SonosKit/**/*.{h,m}"
   s.public_header_files = "SonosKit/**/*.h"
